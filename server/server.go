@@ -15,10 +15,13 @@ import (
 var FS embed.FS
 
 func Run() {
+	h := ws.NewHub()
+	go h.Run()
+
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	staticFiles, _ := fs.Sub(FS, "frontend/dist")
-	h := ws.NewHub()
+
 	router.GET("/ws", func(c *gin.Context) {
 		ws.HttpController(c, h)
 	})
