@@ -3,6 +3,7 @@ package server
 import (
 	"embed"
 	"github.com/Octane0411/synk/server/controller"
+	"github.com/Octane0411/synk/server/ws"
 	"github.com/gin-gonic/gin"
 	"io/fs"
 	"log"
@@ -17,6 +18,10 @@ func Run() {
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	staticFiles, _ := fs.Sub(FS, "frontend/dist")
+	h := ws.NewHub()
+	router.GET("/ws", func(c *gin.Context) {
+		ws.HttpController(c, h)
+	})
 	router.POST("/api/v1/files", controller.FilesController)
 	router.POST("/api/v1/texts", controller.TextsController)
 	router.GET("/api/v1/addresses", controller.AddressesController)

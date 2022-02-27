@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/Octane0411/synk/server"
+	"github.com/zserge/lorca"
 	"log"
 	"os"
 	"os/exec"
@@ -12,16 +13,15 @@ import (
 func main() {
 	go server.Run()
 
-	//var ui lorca.UI
-	//ui, _ = lorca.New("https://baidu.com", "", 800, 600, "--disable-sync", "--disable-translate")
-
-	cmd := startBrowser()
-	chSignal := listenToInterrupt(cmd)
+	ui, _ := lorca.New("http://127.0.0.1:27149/static/index.html", "", 800, 600, "--disable-sync", "--disable-translate")
+	//cmd := startBrowser()
+	chSignal := listenToInterrupt()
 	select {
 	case <-chSignal:
-		cmd.Process.Kill()
+		ui.Close()
+	case <-ui.Done():
+		os.Exit(0)
 	}
-
 }
 
 func startBrowser() *exec.Cmd {
@@ -34,7 +34,7 @@ func startBrowser() *exec.Cmd {
 	return cmd
 }
 
-func listenToInterrupt(cmd *exec.Cmd) chan os.Signal {
+func listenToInterrupt() chan os.Signal {
 	chSignal := make(chan os.Signal, 1)
 	signal.Notify(chSignal, syscall.SIGINT, syscall.SIGTERM)
 	return chSignal
